@@ -1,176 +1,86 @@
-// --- Yox Butonunun Qaçma Məntiqi ---
-const noBtn = document.getElementById('noBtn');
-const moveButton = () => {
-    const x = Math.floor(Math.random() * 160) - 80;
-    const y = Math.floor(Math.random() * 160) - 80;
-    noBtn.style.transform = `translate(${x}px, ${y}px)`;
-};
-noBtn.addEventListener('mouseover', moveButton);
-noBtn.addEventListener('touchstart', (e) => { e.preventDefault(); moveButton(); });
+// --- YENİ: Gözəllik Yoxlanışı Məntiqi ---
+function startBeautyCheck() {
+    const btn = document.getElementById('beautyBtn');
+    const container = document.getElementById('beautyContainer');
+    const loadingText = document.getElementById('beautyLoadingText');
+    const resultDiv = document.getElementById('beautyResult');
 
-// --- Hə Butonuna Basıldıqda ---
-function sayYes() {
-    const questionScreen = document.getElementById('question-screen');
-    const miniModal = document.getElementById('mini-modal');
-    const mainScreen = document.getElementById('main-screen');
+    // Düyməni deaktiv edirik ki, ard-arda basmasın
+    btn.disabled = true;
+    container.classList.add('show');
+    resultDiv.style.display = 'none';
+    loadingText.style.display = 'block';
 
-    questionScreen.style.opacity = '0';
+    // Yüklənmə yazıları
+    const steps = [
+        "Asifin dediyi qız budur? 🤔",
+        "Analiz edilir... ⏳",
+        "Üz cizgilərinə baxılır... 🧐",
+        "Göz rəngi təyin olunur... 👁️",
+        "Gülüşün şirinliyi ölçülür... 😊",
+        "Nəticələr hesablanır... 📊"
+    ];
+
+    let currentStep = 0;
+    loadingText.innerText = steps[0];
+
+    // Hər 1.2 saniyədən bir yazını dəyişirik (Ümumi ~7.2 saniyə)
+    const interval = setInterval(() => {
+        currentStep++;
+        if (currentStep < steps.length) {
+            loadingText.innerText = steps[currentStep];
+        } else {
+            clearInterval(interval);
+            loadingText.style.display = 'none';
+            resultDiv.style.display = 'block';
+            btn.disabled = false;
+            
+            // Konfeti və ürək animasiyası
+            confetti({
+                particleCount: 150,
+                spread: 80,
+                origin: { y: 0.6 },
+                colors: ['#ff6b8b', '#7a283b', '#ffffff'],
+                shapes: ['circle', 'square']
+            });
+        }
+    }, 1200); 
+}
+
+// --- YENİ: Motivasiya Məntiqi ---
+const motivations = [
+    "Sən o qədər gözəlsən ki, günəş belə səni görəndə utanır. ☀️",
+    "Gülüşün ən qaranlıq günümü belə aydınlatmağa bəs edir. ✨",
+    "Sən mənim həyatıma gələn ən gözəl möcüzəsən, heç vaxt kədərlənmə. 💖",
+    "Gözlərinə baxanda bütün dərdlərimi unuduram, sən çox güclüsən! 💪",
+    "Sənin bir gülüşün dünyadakı bütün kədərləri yox edə bilər. 😊",
+    "Sən sadəcə xarici görünüşünlə deyil, qəlbinlə də mükəmməlsən. 🌸",
+    "Hər şey çətin gələndə xatırla ki, səni hər halınla sevən bir Asif var. ❤️",
+    "Sənin varlığın mənim ən böyük motivasiyamdır, sən də özünlə fəxr et! 🌟",
+    "Dünyanın ən şirin, ən ağıllı və ən gözəl qızı hal-hazırda bu yazını oxuyur. 📖",
+    "Sən bacararsan! Çünki sən mənim tanıdığım ən güclü qızsan. 🦋",
+    "Kədərlənmək sənə heç yaraşmır, o gözəl üzün həmişə gülsün. 🥰",
+    "Səninlə hər çətinliyin öhdəsindən gələrik, təki sən pis olma. 🤝",
+    "Sən mənim hər şeyimsən, sənin xoşbəxtliyin mənim xoşbəxtliyimdir. 🌍",
+    "Aynaya bax və Asifin nə qədər şanslı olduğunu gör! 🪞",
+    "Heç vaxt unutma: Sən çox dəyərlisən və çox sevilirsən. 💌"
+];
+
+function showMotivation() {
+    const container = document.getElementById('motivationContainer');
+    const textEl = document.getElementById('motivationText');
+    
+    // Təsadüfi söz seçimi
+    const randomQuote = motivations[Math.floor(Math.random() * motivations.length)];
+    
+    // Animasiya effekti üçün yazını əvvəlcə gizlədib sonra göstəririk
+    textEl.style.opacity = 0;
+    
     setTimeout(() => {
-        questionScreen.style.display = 'none';
-        miniModal.style.transform = 'translate(-50%, -50%) scale(1)';
-        
-        setTimeout(() => {
-            miniModal.style.transform = 'translate(-50%, -50%) scale(0)';
-            setTimeout(() => {
-                mainScreen.style.display = 'flex';
-                document.body.style.overflow = 'auto'; 
-                setTimeout(() => { mainScreen.style.opacity = '1'; }, 50);
-            }, 400); 
-        }, 2500);
-    }, 500);
-}
-
-// --- Səbəbləri Aç/Bağla ---
-function toggleReasons() {
-    const content = document.getElementById('reasonsContent');
-    const btn = document.getElementById('reasonsBtn');
-    if (content.classList.contains('open')) {
-        content.classList.remove('open');
-        btn.innerText = 'Bax';
-    } else {
-        content.classList.add('open');
-        btn.innerText = 'Bağla';
-        setTimeout(() => { content.scrollIntoView({ behavior: 'smooth', block: 'nearest' }); }, 300);
-    }
-}
-
-// --- Təsdiq Paneli Məntiqi (Basılı tutma) ---
-const panel = document.getElementById('fingerprintPanel');
-const marriageSuccess = document.getElementById('marriageSuccess');
-let holdTimer;
-let isSuccess = false;
-
-panel.addEventListener('contextmenu', (e) => e.preventDefault());
-
-const startHold = (e) => {
-    if (isSuccess) return;
-    if (e.cancelable) e.preventDefault();
+        textEl.innerText = randomQuote;
+        textEl.style.transition = "opacity 0.5s ease";
+        textEl.style.opacity = 1;
+    }, 200);
     
-    panel.classList.add('holding');
-    
-    holdTimer = setTimeout(() => {
-        successHold();
-    }, 2000);
-};
-
-const endHold = () => {
-    if (isSuccess) return;
-    panel.classList.remove('holding');
-    clearTimeout(holdTimer);
-};
-
-const successHold = () => {
-    isSuccess = true;
-    panel.classList.remove('holding');
-    panel.classList.add('success');
-    
-    setTimeout(() => {
-        marriageSuccess.classList.add('show');
-        setTimeout(() => {
-            marriageSuccess.scrollIntoView({ behavior: 'smooth', block: 'end' });
-        }, 300);
-    }, 600);
-};
-
-panel.addEventListener('mousedown', startHold);
-panel.addEventListener('mouseup', endHold);
-panel.addEventListener('mouseleave', endHold);
-
-panel.addEventListener('touchstart', startHold, {passive: false});
-panel.addEventListener('touchend', endHold);
-panel.addEventListener('touchcancel', endHold);
-
-// --- Taymer Məntiqi ---
-const startDate = new Date(2026, 6, 7, 0, 0, 0); // 07.07.2026 (Aylar 0-dan başlayır, 6 = İyul)
-function updateTimer() {
-    const now = new Date();
-    if (now < startDate) return; 
-
-    let years = now.getFullYear() - startDate.getFullYear();
-    let months = now.getMonth() - startDate.getMonth();
-    let days = now.getDate() - startDate.getDate();
-
-    if (days < 0) {
-        months--;
-        const prevMonth = new Date(now.getFullYear(), now.getMonth(), 0);
-        days += prevMonth.getDate();
-    }
-    if (months < 0) { years--; months += 12; }
-
-    let hours = now.getHours() - startDate.getHours();
-    if (hours < 0) { days--; hours += 24; }
-    let minutes = now.getMinutes() - startDate.getMinutes();
-    if (minutes < 0) { hours--; minutes += 60; }
-    let seconds = now.getSeconds() - startDate.getSeconds();
-    if (seconds < 0) { minutes--; seconds += 60; }
-
-    const format = (num) => num < 10 ? `0${num}` : num;
-    document.getElementById('years').innerText = format(years);
-    document.getElementById('months').innerText = format(months);
-    document.getElementById('days').innerText = format(days);
-    document.getElementById('hours').innerText = format(hours);
-    document.getElementById('minutes').innerText = format(minutes);
-    document.getElementById('seconds').innerText = format(seconds);
+    container.classList.add('show');
 }
-setInterval(updateTimer, 1000);
-updateTimer(); 
-
-// --- Mesajlaşma Məntiqi (Backend üçün hazırlıq) ---
-function sendMessage() {
-    const textarea = document.getElementById('aytacMessage');
-    const messageText = textarea.value.trim();
-    const chatMessages = document.getElementById('chatMessages');
-
-    if (messageText === "") return;
-
-    // Aytacın mesajını ekrana əlavə edirik
-    const messageDiv = document.createElement('div');
-    messageDiv.classList.add('message-bubble', 'message-aytac');
-    messageDiv.innerText = messageText;
-    chatMessages.appendChild(messageDiv);
-
-    // Textarea-nı təmizləyirik
-    textarea.value = "";
-    
-    // Siyahını ən aşağı sürüşdürürük
-    chatMessages.scrollTop = chatMessages.scrollHeight;
-
-    // GƏLƏCƏK BACKEND ÜÇÜN:
-    // Burada fetch() və ya axios ilə mesajı sənin serverinə göndərəcəyik.
-    // Məsələn:
-    // fetch('senin-api-url.com/send', { method: 'POST', body: JSON.stringify({ message: messageText }) })
-}
-
-// Test üçün: Asifdən mesaj gəldiyini simulyasiya edən funksiya
-// Gələcəkdə bu funksiya backend-dən məlumat gələndə avtomatik işə düşəcək
-function receiveMessageFromAsif(text) {
-    const chatMessages = document.getElementById('chatMessages');
-    const alertBox = document.getElementById('newMessageAlert');
-
-    // Mesajı ekrana əlavə edirik
-    const messageDiv = document.createElement('div');
-    messageDiv.classList.add('message-bubble', 'message-asif');
-    messageDiv.innerText = text;
-    chatMessages.appendChild(messageDiv);
-    chatMessages.scrollTop = chatMessages.scrollHeight;
-
-    // Bildirişi göstəririk
-    alertBox.style.display = 'block';
-
-    // 5 saniyə sonra bildirişi gizlədirik
-    setTimeout(() => {
-        alertBox.style.display = 'none';
-    }, 5000);
-}
-
-// Test etmək istəsən, console-a girib receiveMessageFromAsif("Canım, mesajını aldım!") yaza bilərsən.

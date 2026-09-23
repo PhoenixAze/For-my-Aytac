@@ -6,6 +6,8 @@
     <title>AYTACIM ÜÇÜN ❤️</title>
     <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
+    <!-- Konfeti animasiyası üçün kitabxana -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 </head>
 <body>
 
@@ -42,7 +44,7 @@
 
             <div class="start-date">07.07.2026</div>
 
-            <!-- YENİ: Səbəblər Bölməsi -->
+            <!-- Səbəblər Bölməsi (Yeniləndi) -->
             <div class="reasons-teaser">
                 <span>🤔 Aytacımı niyə sevirəm bilmək istəyirsən?</span>
                 <button class="btn-view" onclick="toggleReasons()" id="reasonsBtn">Bax</button>
@@ -50,33 +52,52 @@
 
             <div class="reasons-content" id="reasonsContent">
                 <ul class="reasons-list">
-                    <li>Gülüşün dünyadakı ən gözəl mənzərədir.</li>
-                    <li>Gözlərinə baxanda özümü tapıram.</li>
-                    <li>Səsin mənə hüzur verir.</li>
-                    <li>Məni hər zaman başa düşürsən.</li>
-                    <li>Səninlə uşaq kimi əylənə bilirəm.</li>
-                    <li>Qoxun dünyanın ən gözəl ətridir.</li>
-                    <li>Hər çətinliyimdə yanımda olursan.</li>
-                    <li>Mənə dəyər verdiyini hər an hiss etdirirsən.</li>
-                    <li>Səninlə susmaq belə gözəldir.</li>
-                    <li>Xırda detallara fikir verməyin məni məftun edir.</li>
-                    <li>Məni daha yaxşı bir insan olmağa həvəsləndirirsən.</li>
-                    <li>Səninlə keçən hər saniyə qiymətlidir.</li>
-                    <li>İnadkarlığın belə çox şirindir.</li>
-                    <li>Mənə baxanda gözlərinin parlaması.</li>
-                    <li>Əllərini tutanda bütün dərdlərimi unuduram.</li>
-                    <li>Səninlə gələcək xəyalları qurmaq ən sevdiyim məşğuliyyətdir.</li>
-                    <li>Məni olduğum kimi qəbul edirsən.</li>
-                    <li>Hər səhər səninlə oyanmaq ümidi.</li>
-                    <li>Səninlə etdiyimiz dəliliklər.</li>
-                    <li>Qəlbimin ancaq sənin üçün döyünməsi.</li>
-                    <li>Səninlə hər yerin cənnət olması.</li>
-                    <li>Məni hər kəsdən çox sevməyin.</li>
-                    <li>Səninlə ağlayıb, səninlə gülə bilməyim.</li>
-                    <li>Həyatıma məna qatmağın.</li>
-                    <li>Sadəcə sən olduğun üçün...</li>
+                    <li>Gözlərin</li>
+                    <li>Gülüşün</li>
+                    <li>Xarakterin</li>
+                    <li>Səmimiyyətin</li>
+                    <li>Gülüş səsin</li>
+                    <li>Zövqün</li>
+                    <li>İnadkarlığın</li>
+                    <li>Mehribanlığın</li>
+                    <li>Ağıllı olmağın</li>
+                    <li>Dodaqların</li>
+                    <li>Səsin</li>
+                    <li>Baxışların</li>
+                    <li>Dəstəyin</li>
+                    <li>Sədaqətin</li>
+                    <li>Enerjin</li>
+                    <li>Qayğıkeşliyin</li>
+                    <li>Cəsarətin</li>
+                    <li>Zərifliyin</li>
+                    <li>Detallara diqqətin</li>
+                    <li>Güclü iradən</li>
+                    <li>Utancaqlığın(şübhəli)</li>
+                    <li>Zarafat qabiliyyətin</li>
+                    <li>Sakitliyin</li>
+                    <li>Sadəcə özün olmağın</li>
                 </ul>
                 <p class="reasons-conclusion">bəli onu çox sevirəm... ❤️</p>
+            </div>
+
+            <!-- YENİ: Gözəllik Yoxlanışı -->
+            <div class="feature-section">
+                <button class="btn-feature" id="beautyBtn" onclick="startBeautyCheck()">Gözəlliyini yoxla ✨</button>
+                <div id="beautyContainer" class="hidden-container">
+                    <p id="beautyLoadingText"></p>
+                    <div id="beautyResult" style="display: none;">
+                        <h3 class="beauty-title">Sən dünyanın ən gözəl qızısan! 😍💖</h3>
+                        <p class="beauty-subtitle">Asif həqiqətən düz deyirmiş...</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- YENİ: Motivasiya Düyməsi -->
+            <div class="feature-section">
+                <button class="btn-feature" onclick="showMotivation()">Motivasiyan olmayanda bas 🌸</button>
+                <div id="motivationContainer" class="hidden-container">
+                    <p id="motivationText"></p>
+                </div>
             </div>
 
             <!-- İki Pişik Şəkli -->
@@ -101,21 +122,13 @@
                 </div>
             </div>
 
-            <!-- YENİ: Mesajlaşma Bölməsi -->
+            <!-- Mesajlaşma Bölməsi -->
             <div class="chat-section">
                 <h3>💌 Bizim Mesaj Qutumuz</h3>
-                
-                <!-- Asifdən yeni mesaj gələndə görünəcək bildiriş -->
                 <div class="new-message-alert" id="newMessageAlert">
                     🔔 Asifdən sənə yeni mesaj var!
                 </div>
-
-                <!-- Gələn mesajların görünəcəyi yer -->
-                <div class="chat-messages" id="chatMessages">
-                    <!-- Backend qoşulana qədər bura boş qala bilər və ya test üçün mesaj əlavə edə bilərik -->
-                </div>
-
-                <!-- Aytacın mesaj göndərmə qutusu -->
+                <div class="chat-messages" id="chatMessages"></div>
                 <div class="chat-input-area">
                     <textarea id="aytacMessage" placeholder="Mənə ürək sözlərini yaz, gülüm..."></textarea>
                     <button class="btn-send" onclick="sendMessage()">Göndər</button>
