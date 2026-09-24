@@ -273,7 +273,7 @@
             color: var(--pink-accent);
         }
 
-        /* --- YENİ: Əlavə Düymələr və Panellər --- */
+        /* --- Əlavə Düymələr və Panellər --- */
         .feature-section {
             margin-top: 25px;
             display: flex;
@@ -499,110 +499,95 @@
             min-height: 150px;
         }
 
-        /* --- Mesajlaşma Bölməsi --- */
-        .chat-section {
+        /* --- YENİ: Sevgi Bağlılığı Bölməsi --- */
+        .connection-section {
             margin-top: 50px;
             background-color: var(--bg-color);
-            padding: 25px;
+            padding: 30px 20px;
             border-radius: 20px;
             box-shadow: var(--shadow-inset);
             width: 100%;
+            text-align: center;
         }
 
-        .chat-section h3 {
-            font-size: 1.5rem;
-            margin-bottom: 20px;
+        .connection-section h3 {
+            font-size: 1.6rem;
+            margin-bottom: 30px;
             color: var(--text-main);
         }
 
-        .new-message-alert {
-            display: none;
-            background-color: var(--pink-accent);
-            color: white;
-            padding: 10px 20px;
-            border-radius: 15px;
-            font-weight: 700;
-            margin-bottom: 15px;
-            animation: pulse 1.5s infinite;
+        .hearts-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 25px;
         }
 
-        @keyframes pulse {
-            0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(255, 107, 139, 0.7); }
-            70% { transform: scale(1.02); box-shadow: 0 0 0 10px rgba(255, 107, 139, 0); }
-            100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(255, 107, 139, 0); }
-        }
-
-        .chat-messages {
+        .heart-box {
             display: flex;
             flex-direction: column;
+            align-items: center;
             gap: 10px;
-            margin-bottom: 20px;
-            max-height: 300px;
-            overflow-y: auto;
         }
 
-        .message-bubble {
-            max-width: 80%;
-            padding: 12px 18px;
-            border-radius: 20px;
-            font-weight: 600;
-            font-size: 1rem;
-            line-height: 1.4;
+        .beating-heart {
+            font-size: 3.5rem;
+            animation: heartbeat 1.2s infinite;
+            filter: drop-shadow(0 5px 15px rgba(255, 107, 139, 0.4));
         }
 
-        .message-asif {
-            background-color: white;
-            color: var(--text-main);
-            align-self: flex-start;
-            border-bottom-left-radius: 5px;
+        .name-label {
+            font-weight: 800;
+            color: var(--text-muted);
+            font-size: 1.1rem;
+            background: var(--card-bg);
+            padding: 5px 15px;
+            border-radius: 15px;
             box-shadow: 0 2px 5px rgba(0,0,0,0.05);
         }
 
-        .message-aytac {
-            background-color: var(--text-main);
-            color: white;
-            align-self: flex-end;
-            border-bottom-right-radius: 5px;
-            box-shadow: 0 2px 5px rgba(122, 40, 59, 0.2);
+        .connection-line {
+            width: 120px;
+            height: 4px;
+            background: linear-gradient(90deg, transparent, var(--pink-accent), transparent);
+            position: relative;
+            border-radius: 2px;
+            overflow: hidden;
         }
 
-        .chat-input-area {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
+        .pulse-dot {
+            width: 30px;
+            height: 100%;
+            background-color: white;
+            box-shadow: 0 0 10px 4px white;
+            position: absolute;
+            top: 0;
+            left: -30px;
+            animation: moveDot 1.5s linear infinite;
         }
 
-        .chat-input-area textarea {
-            width: 100%;
-            height: 80px;
-            padding: 15px;
+        @keyframes moveDot {
+            0% { left: -30px; }
+            100% { left: 100%; }
+        }
+
+        .percentage-text {
+            font-size: 1.2rem;
+            font-weight: 800;
+            color: var(--text-main);
+            background: white;
+            padding: 15px 20px;
             border-radius: 15px;
-            border: 2px solid var(--card-bg);
-            resize: none;
-            font-size: 1rem;
-            outline: none;
-            transition: border-color 0.3s;
+            display: inline-block;
+            box-shadow: var(--shadow);
         }
 
-        .chat-input-area textarea:focus {
-            border-color: var(--pink-accent);
-        }
-
-        .btn-send {
-            background-color: var(--pink-accent);
-            color: white;
-            border: none;
-            padding: 12px;
-            border-radius: 15px;
-            font-weight: 700;
-            font-size: 1.1rem;
-            cursor: pointer;
-            transition: 0.3s;
-        }
-
-        .btn-send:hover {
-            background-color: #e65a78;
-            transform: translateY(-2px);
+        #matchPercentage {
+            color: var(--pink-accent);
+            font-size: 1.6rem;
+            display: inline-block;
+            margin: 0 5px;
         }
 
         @media (max-width: 600px) {
@@ -613,6 +598,12 @@
             .reasons-teaser { flex-direction: column; gap: 15px; text-align: center; }
             .main-card { padding: 30px 20px; }
             .meme-images img { max-width: 140px; }
+            
+            /* Mobil üçün bağlılıq bölməsi */
+            .beating-heart { font-size: 2.5rem; }
+            .connection-line { width: 70px; }
+            .percentage-text { font-size: 1.1rem; }
+            #matchPercentage { font-size: 1.4rem; }
         }
     </style>
 </head>
@@ -729,16 +720,27 @@
                 </div>
             </div>
 
-            <!-- Mesajlaşma Bölməsi -->
-            <div class="chat-section">
-                <h3>💌 Bizim Mesaj Qutumuz</h3>
-                <div class="new-message-alert" id="newMessageAlert">
-                    🔔 Asifdən sənə yeni mesaj var!
+            <!-- YENİ: Sevgi Bağlılığı Bölməsi -->
+            <div class="connection-section">
+                <h3>💞 Bizim Sevgi Bağımız</h3>
+                <div class="hearts-container">
+                    <div class="heart-box">
+                        <div class="beating-heart">❤️</div>
+                        <span class="name-label">Asif</span>
+                    </div>
+                    
+                    <!-- Aradakı animasiyalı xətt -->
+                    <div class="connection-line">
+                        <div class="pulse-dot"></div>
+                    </div>
+                    
+                    <div class="heart-box">
+                        <div class="beating-heart">❤️</div>
+                        <span class="name-label">Aytac</span>
+                    </div>
                 </div>
-                <div class="chat-messages" id="chatMessages"></div>
-                <div class="chat-input-area">
-                    <textarea id="aytacMessage" placeholder="Mənə ürək sözlərini yaz, gülüm..."></textarea>
-                    <button class="btn-send" onclick="sendMessage()">Göndər</button>
+                <div class="percentage-text">
+                    Siz bir-birinizə <span id="matchPercentage">99.9%</span> bağlısınız! ♾️
                 </div>
             </div>
 
@@ -957,39 +959,18 @@
         setInterval(updateTimer, 1000);
         updateTimer(); 
 
-        // --- Mesajlaşma Məntiqi ---
-        function sendMessage() {
-            const textarea = document.getElementById('aytacMessage');
-            const messageText = textarea.value.trim();
-            const chatMessages = document.getElementById('chatMessages');
-
-            if (messageText === "") return;
-
-            const messageDiv = document.createElement('div');
-            messageDiv.classList.add('message-bubble', 'message-aytac');
-            messageDiv.innerText = messageText;
-            chatMessages.appendChild(messageDiv);
-
-            textarea.value = "";
-            chatMessages.scrollTop = chatMessages.scrollHeight;
+        // --- YENİ: Sevgi Bağlılığı Faizi Məntiqi ---
+        function setRandomPercentage() {
+            // 95.0 ilə 99.9 arasında random rəqəm yaradır
+            const min = 95.0;
+            const max = 99.9;
+            const randomPercent = (Math.random() * (max - min) + min).toFixed(1);
+            document.getElementById('matchPercentage').innerText = randomPercent + '%';
         }
+        
+        // Səhifə yüklənəndə faizi təyin et
+        setRandomPercentage();
 
-        function receiveMessageFromAsif(text) {
-            const chatMessages = document.getElementById('chatMessages');
-            const alertBox = document.getElementById('newMessageAlert');
-
-            const messageDiv = document.createElement('div');
-            messageDiv.classList.add('message-bubble', 'message-asif');
-            messageDiv.innerText = text;
-            chatMessages.appendChild(messageDiv);
-            chatMessages.scrollTop = chatMessages.scrollHeight;
-
-            alertBox.style.display = 'block';
-
-            setTimeout(() => {
-                alertBox.style.display = 'none';
-            }, 5000);
-        }
     </script>
 </body>
 </html>
