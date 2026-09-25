@@ -2,10 +2,9 @@
 <html lang="az">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>AYTACIM ÜÇÜN ❤️</title>
     <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
-    <!-- Konfeti animasiyası üçün kitabxana -->
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     
     <style>
@@ -33,7 +32,7 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            overflow: hidden; 
+            overflow-x: hidden; 
         }
 
         /* --- Sual Ekranı --- */
@@ -275,12 +274,19 @@
 
         /* --- Əlavə Düymələr və Panellər --- */
         .feature-section {
-            margin-top: 25px;
+            margin-top: 35px;
             display: flex;
             flex-direction: column;
             align-items: center;
             gap: 15px;
             width: 100%;
+        }
+
+        .section-title {
+            font-size: 1.5rem;
+            color: var(--text-main);
+            margin-bottom: 10px;
+            text-align: center;
         }
 
         .btn-feature {
@@ -303,12 +309,6 @@
             background-color: #8f3147;
         }
 
-        .btn-feature:disabled {
-            background-color: var(--text-muted);
-            cursor: not-allowed;
-            transform: none;
-        }
-
         .hidden-container {
             max-height: 0;
             opacity: 0;
@@ -328,40 +328,234 @@
             padding: 20px;
         }
 
-        /* Gözəllik Yoxlanışı Dizaynı */
-        #beautyLoadingText {
-            font-weight: 800;
-            color: var(--text-muted);
-            font-size: 1.2rem;
-            animation: pulseText 1s infinite;
+        /* --- YENİ: Rəsm Çəkmək (Canvas) --- */
+        .canvas-wrapper {
+            background-color: var(--card-bg);
+            padding: 15px;
+            border-radius: 20px;
+            box-shadow: var(--shadow-inset);
+            width: 100%;
+            max-width: 500px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
         }
 
-        @keyframes pulseText {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.5; }
+        #drawingCanvas {
+            background-color: white;
+            border: 2px dashed var(--pink-accent);
+            border-radius: 15px;
+            cursor: crosshair;
+            touch-action: none; /* Mobildə sürüşmənin qarşısını alır */
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+            width: 100%;
+            height: auto;
+            aspect-ratio: 1 / 1; /* Kvadrat forma */
         }
 
-        .beauty-title {
-            color: var(--pink-accent);
-            font-size: 1.5rem;
-            margin-bottom: 15px;
-            text-shadow: 0 2px 4px rgba(255, 107, 139, 0.2);
+        .canvas-tools {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+            align-items: center;
+            flex-wrap: wrap;
+            justify-content: center;
+            width: 100%;
         }
 
-        .beauty-subtitle {
-            font-weight: 800;
+        .color-btn {
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            border: 3px solid white;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        .color-btn:hover { transform: scale(1.2); }
+        .color-btn.active { border-color: var(--text-main); transform: scale(1.1); }
+
+        .tool-btn {
+            background-color: white;
             color: var(--text-main);
-            font-style: italic;
-            font-size: 1.1rem;
-        }
-
-        /* Motivasiya Dizaynı */
-        #motivationText {
-            font-size: 1.2rem;
+            border: 2px solid var(--text-main);
+            padding: 8px 15px;
+            border-radius: 15px;
             font-weight: 700;
-            color: var(--text-main);
-            line-height: 1.6;
+            cursor: pointer;
+            transition: 0.3s;
+            font-size: 0.9rem;
+        }
+        .tool-btn:hover, .tool-btn.active { background-color: var(--text-main); color: white; }
+        
+        .save-btn {
+            background-color: var(--pink-accent);
+            color: white;
+            border: none;
+            padding: 8px 20px;
+            border-radius: 15px;
+            font-weight: 800;
+            cursor: pointer;
+            box-shadow: 0 4px 10px rgba(255, 107, 139, 0.3);
+            transition: 0.3s;
+        }
+        .save-btn:hover { background-color: #e05a7a; transform: scale(1.05); }
+
+        .brush-size-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            width: 100%;
+            justify-content: center;
+            margin-top: 10px;
+            font-weight: 700;
+        }
+        
+        input[type=range] {
+            accent-color: var(--pink-accent);
+            width: 150px;
+        }
+
+        /* --- YENİ: Çəkilən Rəsmlər Albomu --- */
+        .album-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+            gap: 15px;
+            width: 100%;
+            padding: 10px;
+            margin-top: 15px;
+        }
+
+        .album-item {
+            background: white;
+            padding: 10px;
+            border-radius: 15px;
+            box-shadow: var(--shadow);
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .album-item img {
+            width: 100%;
+            aspect-ratio: 1/1;
+            object-fit: contain;
+            border-radius: 10px;
+            border: 1px solid #eee;
+        }
+
+        .delete-btn {
+            margin-top: 10px;
+            background: #ff4d4d;
+            color: white;
+            border: none;
+            padding: 5px 15px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 0.8rem;
+        }
+
+        .empty-album {
+            color: var(--text-muted);
             font-style: italic;
+            font-weight: 600;
+            text-align: center;
+            width: 100%;
+            padding: 20px;
+        }
+
+        /* --- YENİ: Stres Atma Oyunu (Qabarcıqlar) --- */
+        .stress-game-wrapper {
+            background-color: var(--card-bg);
+            padding: 20px;
+            border-radius: 20px;
+            box-shadow: var(--shadow-inset);
+            width: 100%;
+            max-width: 400px;
+        }
+
+        .bubble-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 10px;
+            margin-bottom: 15px;
+            justify-items: center;
+        }
+
+        .bubble {
+            width: 50px;
+            height: 50px;
+            background: radial-gradient(circle at 30% 30%, #ff9eb5, var(--pink-accent));
+            border-radius: 50%;
+            cursor: pointer;
+            box-shadow: 0 4px 8px rgba(255, 107, 139, 0.4);
+            transition: transform 0.1s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.2s;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 1.2rem;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .bubble:active { transform: scale(0.8); }
+
+        .bubble.popped {
+            transform: scale(0.8);
+            background: #e0c5cb;
+            box-shadow: inset 0 2px 5px rgba(0,0,0,0.1);
+            opacity: 0.4;
+            pointer-events: none;
+        }
+
+        /* --- YENİ: Cütünü Tap Oyunu --- */
+        .memory-game {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            width: 100%;
+            max-width: 350px;
+            margin: 0 auto;
+            perspective: 1000px;
+        }
+
+        .memory-card {
+            aspect-ratio: 1/1;
+            position: relative;
+            transform-style: preserve-3d;
+            transition: transform 0.5s;
+            cursor: pointer;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .memory-card.flip {
+            transform: rotateY(180deg);
+        }
+
+        .memory-card .front, .memory-card .back {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            border-radius: 15px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 2rem;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+
+        .memory-card .front {
+            background: white;
+            transform: rotateY(180deg);
+        }
+
+        .memory-card .back {
+            background: var(--pink-accent);
+            color: white;
+            font-size: 1.5rem;
         }
 
         /* --- Şəkillər --- */
@@ -499,7 +693,7 @@
             min-height: 150px;
         }
 
-        /* --- YENİ: Sevgi Bağlılığı Bölməsi --- */
+        /* --- Sevgi Bağlılığı Bölməsi --- */
         .connection-section {
             margin-top: 50px;
             background-color: var(--bg-color);
@@ -596,14 +790,15 @@
             .time-box .label { font-size: 0.65rem; }
             #question-screen h1 { font-size: 2rem; }
             .reasons-teaser { flex-direction: column; gap: 15px; text-align: center; }
-            .main-card { padding: 30px 20px; }
+            .main-card { padding: 30px 15px; }
             .meme-images img { max-width: 140px; }
-            
-            /* Mobil üçün bağlılıq bölməsi */
             .beating-heart { font-size: 2.5rem; }
             .connection-line { width: 70px; }
             .percentage-text { font-size: 1.1rem; }
             #matchPercentage { font-size: 1.4rem; }
+            .bubble { width: 45px; height: 45px; font-size: 1rem; }
+            .memory-card .front { font-size: 1.5rem; }
+            .memory-card .back { font-size: 1.2rem; }
         }
     </style>
 </head>
@@ -698,6 +893,58 @@
                 </div>
             </div>
 
+            <!-- YENİ: Rəsm Çəkmək (Canvas) -->
+            <div class="feature-section">
+                <h3 class="section-title">Ürəyindən Keçənləri Çək 🎨</h3>
+                <div class="canvas-wrapper">
+                    <!-- Daxili ölçü böyükdür ki, keyfiyyətli olsun, CSS ilə ekrana uyğunlaşır -->
+                    <canvas id="drawingCanvas" width="800" height="800"></canvas>
+                    
+                    <div class="brush-size-container">
+                        <span>Qalınlıq:</span>
+                        <input type="range" id="brushSize" min="2" max="40" value="10" onchange="changeBrushSize(this.value)">
+                    </div>
+
+                    <div class="canvas-tools">
+                        <div class="color-btn active" style="background-color: #7a283b;" onclick="changeColor('#7a283b', this)"></div>
+                        <div class="color-btn" style="background-color: #ff6b8b;" onclick="changeColor('#ff6b8b', this)"></div>
+                        <div class="color-btn" style="background-color: #000000;" onclick="changeColor('#000000', this)"></div>
+                        <div class="color-btn" style="background-color: #4CAF50;" onclick="changeColor('#4CAF50', this)"></div>
+                        <div class="color-btn" style="background-color: #2196F3;" onclick="changeColor('#2196F3', this)"></div>
+                        
+                        <button class="tool-btn" id="eraserBtn" onclick="toggleEraser()">Pozan</button>
+                        <button class="tool-btn" onclick="clearCanvas()">Təmizlə</button>
+                        <button class="save-btn" onclick="saveToAlbum()">Albomda Saxla</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- YENİ: Çəkilən Rəsmlər Albomu -->
+            <div class="feature-section">
+                <h3 class="section-title">Rəsm Albomumuz 🖼️</h3>
+                <div class="album-grid" id="albumGrid">
+                    <!-- Rəsmlər bura düşəcək -->
+                </div>
+            </div>
+
+            <!-- YENİ: Stres Atma Oyunu (Səsli) -->
+            <div class="feature-section">
+                <h3 class="section-title">Əsəbi olanda qabarcıqları partlat 🎈</h3>
+                <div class="stress-game-wrapper">
+                    <div class="bubble-grid" id="bubbleContainer"></div>
+                    <button class="tool-btn" style="width: 100%; margin-top: 10px;" onclick="createBubbles()">Yenidən Doldur</button>
+                </div>
+            </div>
+
+            <!-- YENİ: Cütünü Tap Oyunu -->
+            <div class="feature-section">
+                <h3 class="section-title">Fikrini Dağıt: Cütünü Tap 🧩</h3>
+                <div class="stress-game-wrapper">
+                    <div class="memory-game" id="memoryGame"></div>
+                    <button class="tool-btn" style="width: 100%; margin-top: 15px;" onclick="initMemoryGame()">Yenidən Başla</button>
+                </div>
+            </div>
+
             <!-- İki Pişik Şəkli -->
             <div class="couple-section">
                 <img src="sekil1.jpg" alt="Biz" class="couple-img">
@@ -720,7 +967,7 @@
                 </div>
             </div>
 
-            <!-- YENİ: Sevgi Bağlılığı Bölməsi -->
+            <!-- Sevgi Bağlılığı Bölməsi -->
             <div class="connection-section">
                 <h3>💞 Bizim Sevgi Bağımız</h3>
                 <div class="hearts-container">
@@ -729,7 +976,6 @@
                         <span class="name-label">Asif</span>
                     </div>
                     
-                    <!-- Aradakı animasiyalı xətt -->
                     <div class="connection-line">
                         <div class="pulse-dot"></div>
                     </div>
@@ -748,6 +994,17 @@
     </div>
 
     <script>
+        // --- Audio Context (Səs üçün) ---
+        let audioCtx;
+        function initAudio() {
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            }
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+        }
+
         // --- Yox Butonunun Qaçma Məntiqi ---
         const noBtn = document.getElementById('noBtn');
         const moveButton = () => {
@@ -760,6 +1017,8 @@
 
         // --- Hə Butonuna Basıldıqda ---
         function sayYes() {
+            initAudio(); // Səs sistemini aktivləşdiririk
+            
             const questionScreen = document.getElementById('question-screen');
             const miniModal = document.getElementById('mini-modal');
             const mainScreen = document.getElementById('main-screen');
@@ -774,7 +1033,13 @@
                     setTimeout(() => {
                         mainScreen.style.display = 'flex';
                         document.body.style.overflow = 'auto'; 
-                        setTimeout(() => { mainScreen.style.opacity = '1'; }, 50);
+                        setTimeout(() => { 
+                            mainScreen.style.opacity = '1'; 
+                            createBubbles(); 
+                            initMemoryGame();
+                            initCanvas();
+                            renderAlbum();
+                        }, 50);
                     }, 400); 
                 }, 2500);
             }, 500);
@@ -828,7 +1093,6 @@
                     resultDiv.style.display = 'block';
                     btn.disabled = false;
                     
-                    // Konfeti animasiyası
                     if (typeof confetti === 'function') {
                         confetti({
                             particleCount: 150,
@@ -853,29 +1117,271 @@
             "Hər şey çətin gələndə xatırla ki, səni hər halınla sevən bir Asif var. ❤️",
             "Sənin varlığın mənim ən böyük motivasiyamdır, sən də özünlə fəxr et! 🌟",
             "Dünyanın ən şirin, ən ağıllı və ən gözəl qızı hal-hazırda bu yazını oxuyur. 📖",
-            "Sən bacararsan! Çünki sən mənim tanıdığım ən güclü qızsan. 🦋",
-            "Kədərlənmək sənə heç yaraşmır, o gözəl üzün həmişə gülsün. 🥰",
-            "Səninlə hər çətinliyin öhdəsindən gələrik, təki sən pis olma. 🤝",
-            "Sən mənim hər şeyimsən, sənin xoşbəxtliyin mənim xoşbəxtliyimdir. 🌍",
-            "Aynaya bax və Asifin nə qədər şanslı olduğunu gör! 🪞",
-            "Heç vaxt unutma: Sən çox dəyərlisən və çox sevilirsən. 💌"
+            "Sən bacararsan! Çünki sən mənim tanıdığım ən güclü qızsan. 🦋"
         ];
 
         function showMotivation() {
             const container = document.getElementById('motivationContainer');
             const textEl = document.getElementById('motivationText');
-            
             const randomQuote = motivations[Math.floor(Math.random() * motivations.length)];
             
             textEl.style.opacity = 0;
-            
             setTimeout(() => {
                 textEl.innerText = randomQuote;
                 textEl.style.transition = "opacity 0.5s ease";
                 textEl.style.opacity = 1;
             }, 200);
-            
             container.classList.add('show');
+        }
+
+        // --- YENİ: Rəsm Çəkmək (Canvas) Məntiqi ---
+        const canvas = document.getElementById('drawingCanvas');
+        const ctx = canvas.getContext('2d');
+        let isDrawing = false;
+        let brushColor = '#7a283b';
+        let isEraser = false;
+
+        ctx.lineCap = 'round';
+        ctx.lineJoin = 'round';
+        ctx.lineWidth = 10;
+
+        function initCanvas() {
+            // Arxa fonu ağ edirik ki, şəkil kimi yadda saxlayanda arxası qara düşməsin
+            ctx.fillStyle = '#ffffff';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+        }
+
+        // Koordinatları CSS ölçüsünə görə hesablamaq
+        function getCoordinates(e) {
+            const rect = canvas.getBoundingClientRect();
+            const scaleX = canvas.width / rect.width;
+            const scaleY = canvas.height / rect.height;
+            
+            let clientX = e.clientX;
+            let clientY = e.clientY;
+            
+            if (e.touches && e.touches.length > 0) {
+                clientX = e.touches[0].clientX;
+                clientY = e.touches[0].clientY;
+            }
+            
+            return {
+                x: (clientX - rect.left) * scaleX,
+                y: (clientY - rect.top) * scaleY
+            };
+        }
+
+        function startPosition(e) {
+            isDrawing = true;
+            draw(e);
+        }
+
+        function endPosition() {
+            isDrawing = false;
+            ctx.beginPath();
+        }
+
+        function draw(e) {
+            if (!isDrawing) return;
+            e.preventDefault(); // Mobildə ekranın sürüşməsinin qarşısını alır
+
+            const pos = getCoordinates(e);
+
+            ctx.strokeStyle = isEraser ? '#ffffff' : brushColor;
+            ctx.lineTo(pos.x, pos.y);
+            ctx.stroke();
+            ctx.beginPath();
+            ctx.moveTo(pos.x, pos.y);
+        }
+
+        canvas.addEventListener('mousedown', startPosition);
+        canvas.addEventListener('mouseup', endPosition);
+        canvas.addEventListener('mousemove', draw);
+        canvas.addEventListener('mouseleave', endPosition);
+
+        canvas.addEventListener('touchstart', startPosition, {passive: false});
+        canvas.addEventListener('touchend', endPosition);
+        canvas.addEventListener('touchmove', draw, {passive: false});
+
+        function changeColor(color, element) {
+            isEraser = false;
+            brushColor = color;
+            document.getElementById('eraserBtn').classList.remove('active');
+            document.querySelectorAll('.color-btn').forEach(btn => btn.classList.remove('active'));
+            element.classList.add('active');
+        }
+
+        function changeBrushSize(size) {
+            ctx.lineWidth = size;
+        }
+
+        function toggleEraser() {
+            isEraser = true;
+            document.querySelectorAll('.color-btn').forEach(btn => btn.classList.remove('active'));
+            document.getElementById('eraserBtn').classList.add('active');
+        }
+
+        function clearCanvas() {
+            ctx.fillStyle = '#ffffff';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+        }
+
+        // --- YENİ: Albom Məntiqi (LocalStorage) ---
+        function saveToAlbum() {
+            const dataURL = canvas.toDataURL('image/png');
+            let savedImages = JSON.parse(localStorage.getItem('aytac_album')) || [];
+            savedImages.push(dataURL);
+            localStorage.setItem('aytac_album', JSON.stringify(savedImages));
+            renderAlbum();
+            
+            // Uğur mesajı kimi konfeti
+            if (typeof confetti === 'function') {
+                confetti({ particleCount: 50, spread: 60, origin: { y: 0.8 } });
+            }
+        }
+
+        function renderAlbum() {
+            const album = document.getElementById('albumGrid');
+            album.innerHTML = '';
+            let savedImages = JSON.parse(localStorage.getItem('aytac_album')) || [];
+            
+            if (savedImages.length === 0) {
+                album.innerHTML = '<div class="empty-album">Hələ heç nə çəkməmisən... 🎨</div>';
+                return;
+            }
+
+            savedImages.forEach((src, index) => {
+                const div = document.createElement('div');
+                div.className = 'album-item';
+                div.innerHTML = `
+                    <img src="${src}" alt="Rəsm ${index + 1}">
+                    <button class="delete-btn" onclick="deleteImage(${index})">Sil</button>
+                `;
+                album.appendChild(div);
+            });
+        }
+
+        function deleteImage(index) {
+            let savedImages = JSON.parse(localStorage.getItem('aytac_album')) || [];
+            savedImages.splice(index, 1);
+            localStorage.setItem('aytac_album', JSON.stringify(savedImages));
+            renderAlbum();
+        }
+
+        // --- YENİ: Stres Atma Oyunu (Səsli) ---
+        function playPopSound() {
+            if (!audioCtx) return;
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+            
+            // Qısa və şirin "pop" səsi yaradırıq
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(600, audioCtx.currentTime);
+            osc.frequency.exponentialRampToValueAtTime(100, audioCtx.currentTime + 0.05);
+            
+            gain.gain.setValueAtTime(1, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.05);
+            
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            
+            osc.start();
+            osc.stop(audioCtx.currentTime + 0.05);
+        }
+
+        function createBubbles() {
+            const container = document.getElementById('bubbleContainer');
+            container.innerHTML = '';
+            for (let i = 0; i < 15; i++) {
+                let bubble = document.createElement('div');
+                bubble.className = 'bubble';
+                bubble.innerHTML = '🎈'; 
+                
+                bubble.onclick = function() {
+                    if (!this.classList.contains('popped')) {
+                        this.classList.add('popped');
+                        this.innerHTML = '💥';
+                        playPopSound(); // Səs effekti
+                        if (navigator.vibrate) navigator.vibrate(40); // Vibrasiya
+                    }
+                };
+                container.appendChild(bubble);
+            }
+        }
+
+        // --- YENİ: Cütünü Tap Oyunu ---
+        const emojis = ['🐱', '🐱', '💖', '💖', '🌸', '🌸', '🎀', '🎀', '🍓', '🍓', '✨', '✨'];
+        let hasFlippedCard = false;
+        let lockBoard = false;
+        let firstCard, secondCard;
+
+        function initMemoryGame() {
+            const gameBoard = document.getElementById('memoryGame');
+            gameBoard.innerHTML = '';
+            hasFlippedCard = false;
+            lockBoard = false;
+            firstCard = null;
+            secondCard = null;
+
+            // Emojiləri qarışdır
+            emojis.sort(() => 0.5 - Math.random());
+
+            emojis.forEach(emoji => {
+                const card = document.createElement('div');
+                card.classList.add('memory-card');
+                card.dataset.emoji = emoji;
+
+                card.innerHTML = `
+                    <div class="front">${emoji}</div>
+                    <div class="back">?</div>
+                `;
+
+                card.addEventListener('click', flipCard);
+                gameBoard.appendChild(card);
+            });
+        }
+
+        function flipCard() {
+            if (lockBoard) return;
+            if (this === firstCard) return;
+
+            this.classList.add('flip');
+
+            if (!hasFlippedCard) {
+                hasFlippedCard = true;
+                firstCard = this;
+                return;
+            }
+
+            secondCard = this;
+            checkForMatch();
+        }
+
+        function checkForMatch() {
+            let isMatch = firstCard.dataset.emoji === secondCard.dataset.emoji;
+            isMatch ? disableCards() : unflipCards();
+        }
+
+        function disableCards() {
+            firstCard.removeEventListener('click', flipCard);
+            secondCard.removeEventListener('click', flipCard);
+            resetBoard();
+        }
+
+        function unflipCards() {
+            lockBoard = true;
+            setTimeout(() => {
+                firstCard.classList.remove('flip');
+                secondCard.classList.remove('flip');
+                resetBoard();
+            }, 1000);
+        }
+
+        function resetBoard() {
+            [hasFlippedCard, lockBoard] = [false, false];
+            [firstCard, secondCard] = [null, null];
         }
 
         // --- Təsdiq Paneli Məntiqi (Basılı tutma) ---
@@ -889,12 +1395,8 @@
         const startHold = (e) => {
             if (isSuccess) return;
             if (e.cancelable) e.preventDefault();
-            
             panel.classList.add('holding');
-            
-            holdTimer = setTimeout(() => {
-                successHold();
-            }, 2000);
+            holdTimer = setTimeout(() => { successHold(); }, 2000);
         };
 
         const endHold = () => {
@@ -907,19 +1409,15 @@
             isSuccess = true;
             panel.classList.remove('holding');
             panel.classList.add('success');
-            
             setTimeout(() => {
                 marriageSuccess.classList.add('show');
-                setTimeout(() => {
-                    marriageSuccess.scrollIntoView({ behavior: 'smooth', block: 'end' });
-                }, 300);
+                setTimeout(() => { marriageSuccess.scrollIntoView({ behavior: 'smooth', block: 'end' }); }, 300);
             }, 600);
         };
 
         panel.addEventListener('mousedown', startHold);
         panel.addEventListener('mouseup', endHold);
         panel.addEventListener('mouseleave', endHold);
-
         panel.addEventListener('touchstart', startHold, {passive: false});
         panel.addEventListener('touchend', endHold);
         panel.addEventListener('touchcancel', endHold);
@@ -959,16 +1457,13 @@
         setInterval(updateTimer, 1000);
         updateTimer(); 
 
-        // --- YENİ: Sevgi Bağlılığı Faizi Məntiqi ---
+        // --- Sevgi Bağlılığı Faizi Məntiqi ---
         function setRandomPercentage() {
-            // 95.0 ilə 99.9 arasında random rəqəm yaradır
             const min = 95.0;
             const max = 99.9;
             const randomPercent = (Math.random() * (max - min) + min).toFixed(1);
             document.getElementById('matchPercentage').innerText = randomPercent + '%';
         }
-        
-        // Səhifə yüklənəndə faizi təyin et
         setRandomPercentage();
 
     </script>
