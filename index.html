@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="az">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>AYTACIM ÜÇÜN ❤️</title>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    
+    <style>
+        :root {
+            --bg-color: #fdf2f5; 
+            --card-bg: #fce8ec; 
+            --text-main: #7a283b; 
+            --text-muted: #a35d6d;
+            --pink-accent: #ff6b8b;
+            --shadow: 0 10px 20px rgba(122, 40, 59, 0.15);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Nunito', sans-serif; }
+        body { background-color: var(--bg-color); color: var(--text-main); min-height: 100vh; display: flex; flex-direction: column; align-items: center; }
+
+        /* --- LOGIN EKRANI --- */
+        #login-screen {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: var(--bg-color); z-index: 100;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+        }
+        .login-box {
+            background: white; padding: 40px; border-radius: 20px; box-shadow: var(--shadow); text-align: center;
+        }
+        .login-box input {
+            padding: 10px; margin: 20px 0; border: 2px solid var(--pink-accent); border-radius: 10px; font-size: 1.2rem; text-align: center; outline: none;
+        }
+        .btn {
+            background-color: var(--text-main); color: white; border: none; padding: 10px 30px; border-radius: 20px; font-size: 1.1rem; cursor: pointer; font-weight: bold;
+        }
+
+        /* --- MENYU (TABS) --- */
+        #app-container { display: none; width: 100%; max-width: 800px; padding: 20px; padding-bottom: 80px; }
+        
+        .bottom-nav {
+            position: fixed; bottom: 0; left: 0; width: 100%; background: white; box-shadow: 0 -5px 15px rgba(0,0,0,0.05);
+            display: flex; justify-content: space-around; padding: 15px 0; z-index: 50;
+        }
+        .nav-item {
+            color: var(--text-muted); font-weight: bold; cursor: pointer; padding: 5px 10px; transition: 0.3s;
+        }
+        .nav-item.active { color: var(--pink-accent); border-bottom: 3px solid var(--pink-accent); }
+
+        .tab-content { display: none; animation: fadeIn 0.5s; }
+        .tab-content.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* Ümumi Kart Dizaynı */
+        .card { background: white; padding: 25px; border-radius: 20px; box-shadow: var(--shadow); margin-bottom: 20px; text-align: center; }
+        
+        /* Form və İnputlar */
+        textarea, input[type="text"], input[type="file"] {
+            width: 100%; padding: 10px; margin: 10px 0; border: 2px solid #eee; border-radius: 10px; font-family: inherit;
+        }
+        
+        /* Albom Qridi */
+        .album-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 15px; margin-top: 20px; }
+        .photo-card { background: var(--card-bg); padding: 10px; border-radius: 15px; }
+        .photo-card img { width: 100%; border-radius: 10px; object-fit: cover; aspect-ratio: 1; }
+        .photo-card p { margin-top: 10px; font-size: 0.9rem; font-weight: bold; }
+
+        /* Məktublar */
+        .letter-card { background: #fff9fa; border-left: 5px solid var(--pink-accent); padding: 15px; margin-bottom: 15px; text-align: left; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+        .letter-date { font-size: 0.8rem; color: gray; margin-bottom: 5px; }
+
+        /* Taymer */
+        .timer-container { display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; }
+        .time-box { background: var(--card-bg); padding: 15px; border-radius: 15px; min-width: 70px; }
+        .time-box .num { font-size: 1.5rem; font-weight: bold; display: block; }
+    </style>
+</head>
+<body>
+
+    <!-- GİRİŞ EKRANI -->
+    <div id="login-screen">
+        <div class="login-box">
+            <h2>Gizli Məkan 🤫</h2>
+            <p>Bura ancaq Aytac və Asif üçündür.</p>
+            <input type="password" id="passwordInput" placeholder="Şifrəni yaz...">
+            <br>
+            <button class="btn" onclick="checkPassword()">Daxil Ol</button>
+            <p id="loginError" style="color: red; margin-top: 10px; display: none;"></p>
+        </div>
+    </div>
+
+    <!-- ƏSAS TƏTBİQ -->
+    <div id="app-container">
+        
+        <!-- TAB 1: Ana Səhifə -->
+        <div id="tab-home" class="tab-content active">
+            <div class="card">
+                <h2>AYTACIM ÜÇÜN ❤️</h2>
+                <p style="margin-bottom: 15px;">Birlikdə keçən vaxtımız:</p>
+                <div class="timer-container">
+                    <div class="time-box"><span class="num" id="days">0</span>Gün</div>
+                    <div class="time-box"><span class="num" id="hours">0</span>Saat</div>
+                    <div class="time-box"><span class="num" id="minutes">0</span>Dəq</div>
+                    <div class="time-box"><span class="num" id="seconds">0</span>San</div>
+                </div>
+            </div>
+            <div class="card">
+                <h3>Motivasiya 🌸</h3>
+                <button class="btn" onclick="showMotivation()" style="margin-top: 10px;">Günün Sözü</button>
+                <p id="motivationText" style="margin-top: 15px; font-weight: bold;"></p>
+            </div>
+        </div>
+
+        <!-- TAB 2: Albom (Backend ilə) -->
+        <div id="tab-album" class="tab-content">
+            <div class="card">
+                <h2>Xatirələrimiz 📸</h2>
+                <input type="file" id="photoInput" accept="image/*">
+                <input type="text" id="captionInput" placeholder="Şəkil üçün qısa şərh yaz...">
+                <button class="btn" onclick="uploadPhoto()" id="uploadBtn">Yüklə</button>
+            </div>
+            <div class="album-grid" id="albumContainer">
+                <!-- Şəkillər bura gələcək -->
+            </div>
+        </div>
+
+        <!-- TAB 3: Sözlər (Backend ilə) -->
+        <div id="tab-letters" class="tab-content">
+            <div class="card">
+                <h2>Ürək Sözləri 💌</h2>
+                <textarea id="letterInput" rows="4" placeholder="İçindən gələnləri yaz..."></textarea>
+                <button class="btn" onclick="saveLetter()">Məktubu Saxla</button>
+            </div>
+            <div id="lettersContainer">
+                <!-- Məktublar bura gələcək -->
+            </div>
+        </div>
+
+        <!-- TAB 4: Oyunlar & Rəsm -->
+        <div id="tab-fun" class="tab-content">
+            <div class="card">
+                <h2>Gözəllik Yoxlanışı ✨</h2>
+                <button class="btn" onclick="alert('Sən dünyanın ən gözəl qızısan! 😍💖 Asif həqiqətən düz deyirmiş...')">Yoxla</button>
+            </div>
+            <div class="card">
+                <h2>Evlilik Təsdiqi 💍</h2>
+                <button class="btn" onclick="alert('Təbriklər! Artıq rəsmən evlisiniz 😝')">Barmağını Bas</button>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- ALT MENYU -->
+    <div class="bottom-nav" id="bottomNav" style="display: none;">
+        <div class="nav-item active" onclick="switchTab('home', this)">Ana Səhifə</div>
+        <div class="nav-item" onclick="switchTab('album', this)">Albom</div>
+        <div class="nav-item" onclick="switchTab('letters', this)">Sözlər</div>
+        <div class="nav-item" onclick="switchTab('fun', this)">Əyləncə</div>
+    </div>
+
+    <script>
+        // --- 1. GİRİŞ SİSTEMİ ---
+        async function checkPassword() {
+            const pass = document.getElementById('passwordInput').value;
+            const errorEl = document.getElementById('loginError');
+            
+            try {
+                const res = await fetch('/api/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ password: pass })
+                });
+                const data = await res.json();
+                
+                if (data.success) {
+                    document.getElementById('login-screen').style.display = 'none';
+                    document.getElementById('app-container').style.display = 'block';
+                    document.getElementById('bottomNav').style.display = 'flex';
+                    sessionStorage.setItem('isLogged', 'true');
+                    loadPhotos();
+                    loadLetters();
+                    confetti();
+                } else {
+                    errorEl.innerText = data.message;
+                    errorEl.style.display = 'block';
+                }
+            } catch (err) {
+                errorEl.innerText = "Server xətası!";
+                errorEl.style.display = 'block';
+            }
+        }
+
+        // Səhifə yenilənəndə şifrəni yenidən istəməmək üçün
+        if(sessionStorage.getItem('isLogged') === 'true') {
+            document.getElementById('login-screen').style.display = 'none';
+            document.getElementById('app-container').style.display = 'block';
+            document.getElementById('bottomNav').style.display = 'flex';
+            loadPhotos();
+            loadLetters();
+        }
+
+        // --- 2. MENYU SİSTEMİ ---
+        function switchTab(tabId, element) {
+            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.nav-item').forEach(nav => nav.classList.remove('active'));
+            
+            document.getElementById('tab-' + tabId).classList.add('active');
+            element.classList.add('active');
+        }
+
+        // --- 3. ALBOM SİSTEMİ (Backend) ---
+        async function uploadPhoto() {
+            const fileInput = document.getElementById('photoInput');
+            const caption = document.getElementById('captionInput').value;
+            const btn = document.getElementById('uploadBtn');
+
+            if (!fileInput.files[0]) return alert("Şəkil seçin!");
+
+            btn.innerText = "Yüklənir...";
+            btn.disabled = true;
+
+            const formData = new FormData();
+            formData.append('image', fileInput.files[0]);
+            formData.append('caption', caption);
+
+            try {
+                const res = await fetch('/api/upload', { method: 'POST', body: formData });
+                const data = await res.json();
+                if (data.success) {
+                    fileInput.value = '';
+                    document.getElementById('captionInput').value = '';
+                    loadPhotos();
+                    confetti();
+                }
+            } catch (err) {
+                alert("Xəta baş verdi!");
+            }
+            btn.innerText = "Yüklə";
+            btn.disabled = false;
+        }
+
+        async function loadPhotos() {
+            const res = await fetch('/api/photos');
+            const photos = await res.json();
+            const container = document.getElementById('albumContainer');
+            container.innerHTML = '';
+            
+            photos.forEach(photo => {
+                container.innerHTML += `
+                    <div class="photo-card">
+                        <img src="${photo.image_url}" alt="Xatirə">
+                        <p>${photo.caption || '❤️'}</p>
+                    </div>
+                `;
+            });
+        }
+
+        // --- 4. MƏKTUBLAR SİSTEMİ (Backend) ---
+        async function saveLetter() {
+            const msg = document.getElementById('letterInput').value;
+            if (!msg) return;
+
+            await fetch('/api/letters', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ message: msg })
+            });
+
+            document.getElementById('letterInput').value = '';
+            loadLetters();
+            confetti();
+        }
+
+        async function loadLetters() {
+            const res = await fetch('/api/letters');
+            const letters = await res.json();
+            const container = document.getElementById('lettersContainer');
+            container.innerHTML = '';
+
+            letters.forEach(letter => {
+                const date = new Date(letter.created_at).toLocaleDateString('az-AZ');
+                container.innerHTML += `
+                    <div class="letter-card">
+                        <div class="letter-date">${date}</div>
+                        <div>${letter.message}</div>
+                    </div>
+                `;
+            });
+        }
+
+        // --- 5. TAYMER VƏ MOTİVASİYA ---
+        const startDate = new Date(2026, 6, 7, 0, 0, 0); 
+        setInterval(() => {
+            const now = new Date();
+            const diff = now - startDate;
+            if(diff > 0) {
+                document.getElementById('days').innerText = Math.floor(diff / (1000 * 60 * 60 * 24));
+                document.getElementById('hours').innerText = Math.floor((diff / (1000 * 60 * 60)) % 24);
+                document.getElementById('minutes').innerText = Math.floor((diff / 1000 / 60) % 60);
+                document.getElementById('seconds').innerText = Math.floor((diff / 1000) % 60);
+            }
+        }, 1000);
+
+        const motivations = [
+            "Sən o qədər gözəlsən ki, günəş belə səni görəndə utanır. ☀️",
+            "Gülüşün ən qaranlıq günümü belə aydınlatmağa bəs edir. ✨",
+            "Sən mənim həyatıma gələn ən gözəl möcüzəsən. 💖"
+        ];
+        function showMotivation() {
+            const text = motivations[Math.floor(Math.random() * motivations.length)];
+            document.getElementById('motivationText').innerText = text;
+        }
+    </script>
+</body>
+</html>
