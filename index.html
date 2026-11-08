@@ -1,0 +1,607 @@
+<!DOCTYPE html>
+<html lang="az">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>AYTACIM ÜÇÜN ❤️</title>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    
+    <style>
+        :root {
+            --bg-color: #fdf2f5; 
+            --card-bg: #fce8ec; 
+            --text-main: #7a283b; 
+            --text-muted: #a35d6d;
+            --pink-accent: #ff6b8b;
+            --shadow: 0 10px 20px rgba(122, 40, 59, 0.15);
+            --shadow-inset: inset 0 -4px 0 rgba(122, 40, 59, 0.1);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Nunito', sans-serif; }
+        body { background-color: var(--bg-color); color: var(--text-main); min-height: 100vh; display: flex; flex-direction: column; align-items: center; overflow-x: hidden; }
+
+        /* --- EKRANLAR --- */
+        #login-screen, #question-screen {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: var(--bg-color); z-index: 100;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+        }
+        #question-screen { display: none; z-index: 90; text-align: center; padding: 20px; }
+        #question-screen h1 { font-size: 2.5rem; margin-bottom: 30px; }
+        
+        .login-box { background: white; padding: 40px; border-radius: 20px; box-shadow: var(--shadow); text-align: center; }
+        .login-box input { padding: 10px; margin: 20px 0; border: 2px solid var(--pink-accent); border-radius: 10px; font-size: 1.2rem; text-align: center; outline: none; }
+        
+        .btn { background-color: var(--text-main); color: white; border: none; padding: 12px 30px; border-radius: 20px; font-size: 1.1rem; cursor: pointer; font-weight: bold; transition: 0.3s; box-shadow: 0 4px 10px rgba(122, 40, 59, 0.2); }
+        .btn:hover { transform: scale(1.05); }
+        .btn-no { background-color: var(--card-bg); color: var(--text-main); position: relative; }
+
+        #mini-modal {
+            position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%) scale(0);
+            background: white; padding: 30px 40px; border-radius: 20px; box-shadow: var(--shadow); text-align: center; z-index: 110; transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        /* --- MENYU (TABS) --- */
+        #app-container { display: none; width: 100%; max-width: 900px; padding: 20px; padding-bottom: 80px; }
+        .bottom-nav {
+            position: fixed; bottom: 0; left: 0; width: 100%; background: white; box-shadow: 0 -5px 15px rgba(0,0,0,0.05);
+            display: flex; justify-content: space-around; padding: 15px 0; z-index: 50;
+        }
+        .nav-item { color: var(--text-muted); font-weight: bold; cursor: pointer; padding: 5px 10px; transition: 0.3s; }
+        .nav-item.active { color: var(--pink-accent); border-bottom: 3px solid var(--pink-accent); }
+        .tab-content { display: none; animation: fadeIn 0.5s; }
+        .tab-content.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        .card { background: white; padding: 30px; border-radius: 25px; box-shadow: var(--shadow); margin-bottom: 20px; text-align: center; width: 100%; }
+        
+        /* --- TAYMER --- */
+        .timer-container { display: flex; justify-content: center; gap: 15px; flex-wrap: wrap; margin-bottom: 15px; }
+        .time-box { background-color: var(--card-bg); width: 90px; height: 100px; border-radius: 18px; display: flex; flex-direction: column; justify-content: center; align-items: center; box-shadow: var(--shadow-inset); position: relative; }
+        .time-box .number { font-size: 2.2rem; font-weight: 800; line-height: 1; margin-bottom: 5px; }
+        .time-box .label { font-size: 0.75rem; font-weight: 600; text-transform: uppercase; }
+        .heart-icon { position: absolute; top: -15px; right: -10px; font-size: 1.5rem; animation: heartbeat 1.5s infinite; }
+        .start-date { font-size: 1.1rem; font-weight: 700; color: var(--text-muted); margin-bottom: 25px; letter-spacing: 2px; }
+        @keyframes heartbeat { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.2); } }
+
+        /* --- SƏBƏBLƏR --- */
+        .reasons-teaser { background-color: var(--card-bg); padding: 15px 25px; border-radius: 15px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .reasons-content { max-height: 0; opacity: 0; overflow: hidden; transition: all 0.8s ease; background-color: var(--bg-color); border-radius: 15px; text-align: left; }
+        .reasons-content.open { max-height: 1500px; opacity: 1; padding: 25px; margin-top: 15px; }
+        .reasons-list li { margin-bottom: 10px; font-weight: 600; list-style: none; }
+        .reasons-list li::before { content: "❤️ "; }
+
+        /* --- SEVGİ BAĞLILIĞI --- */
+        .connection-section { background-color: var(--bg-color); padding: 20px; border-radius: 20px; margin-top: 20px; }
+        .hearts-container { display: flex; justify-content: center; align-items: center; gap: 15px; margin-bottom: 15px; }
+        .beating-heart { font-size: 3rem; animation: heartbeat 1.2s infinite; }
+        .connection-line { width: 100px; height: 4px; background: linear-gradient(90deg, transparent, var(--pink-accent), transparent); position: relative; overflow: hidden; }
+        .pulse-dot { width: 30px; height: 100%; background: white; position: absolute; animation: moveDot 1.5s linear infinite; }
+        @keyframes moveDot { 0% { left: -30px; } 100% { left: 100%; } }
+
+        /* --- FORMLAR VƏ ALBOM --- */
+        input[type="text"], input[type="file"], input[type="date"], textarea { width: 100%; padding: 12px; margin: 10px 0; border: 2px solid #eee; border-radius: 10px; font-family: inherit; outline: none; }
+        .checkbox-container { display: flex; align-items: center; gap: 10px; margin: 10px 0; font-weight: bold; justify-content: center; }
+        
+        .album-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 15px; margin-top: 20px; }
+        .photo-card { background: var(--card-bg); padding: 10px; border-radius: 15px; position: relative; }
+        .photo-card img { width: 100%; border-radius: 10px; object-fit: cover; aspect-ratio: 1; }
+        .uploader-badge { position: absolute; top: 15px; left: 15px; background: rgba(255,255,255,0.9); padding: 2px 8px; border-radius: 10px; font-size: 0.8rem; font-weight: bold; color: var(--text-main); }
+        
+        .letter-card { background: #fff9fa; border-left: 5px solid var(--pink-accent); padding: 15px; margin-bottom: 15px; text-align: left; border-radius: 10px; }
+        .letter-header { display: flex; justify-content: space-between; font-size: 0.85rem; color: gray; margin-bottom: 8px; font-weight: bold; }
+
+        /* --- ÖZƏL GÜNLƏR --- */
+        .special-day-item { background: var(--card-bg); padding: 15px; border-radius: 15px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; font-weight: bold; }
+        .btn-small { background: var(--pink-accent); color: white; border: none; padding: 5px 15px; border-radius: 10px; cursor: pointer; font-weight: bold; }
+        
+        /* Modal Şəkil üçün */
+        #photo-modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 200; display: none; justify-content: center; align-items: center; flex-direction: column; }
+        #photo-modal img { max-width: 90%; max-height: 70vh; border-radius: 15px; border: 3px solid white; }
+        #photo-modal p { color: white; margin-top: 15px; font-size: 1.2rem; font-weight: bold; text-align: center; }
+        .close-modal { position: absolute; top: 20px; right: 20px; color: white; font-size: 2rem; cursor: pointer; }
+
+        /* --- ƏYLƏNCƏ (Oyunlar, Canvas, Barmaq izi) --- */
+        .hidden-container { max-height: 0; opacity: 0; overflow: hidden; transition: all 0.6s ease; }
+        .hidden-container.show { max-height: 500px; opacity: 1; padding: 20px 0; }
+        
+        #drawingCanvas { background: white; border: 2px dashed var(--pink-accent); border-radius: 15px; width: 100%; max-width: 400px; aspect-ratio: 1; touch-action: none; }
+        .color-btn { width: 30px; height: 30px; border-radius: 50%; border: 2px solid white; display: inline-block; margin: 5px; cursor: pointer; }
+        
+        .bubble-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; justify-items: center; margin-top: 15px; }
+        .bubble { width: 50px; height: 50px; background: radial-gradient(circle at 30% 30%, #ff9eb5, var(--pink-accent)); border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 1.2rem; cursor: pointer; user-select: none; }
+        .bubble.popped { transform: scale(0.8); opacity: 0.4; pointer-events: none; }
+
+        .memory-game { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; max-width: 300px; margin: 15px auto; perspective: 1000px; }
+        .memory-card { aspect-ratio: 1; position: relative; transform-style: preserve-3d; transition: transform 0.5s; cursor: pointer; }
+        .memory-card.flip { transform: rotateY(180deg); }
+        .memory-card .front, .memory-card .back { position: absolute; width: 100%; height: 100%; backface-visibility: hidden; border-radius: 10px; display: flex; justify-content: center; align-items: center; font-size: 1.5rem; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
+        .memory-card .front { background: white; transform: rotateY(180deg); }
+        .memory-card .back { background: var(--pink-accent); color: white; }
+
+        .fingerprint-panel { width: 150px; height: 150px; background: var(--card-bg); border: 3px dashed var(--text-muted); border-radius: 30px; display: flex; justify-content: center; align-items: center; margin: 20px auto; cursor: pointer; transition: 0.3s; position: relative; user-select: none; }
+        .fingerprint-panel.holding { transform: scale(0.9); background: #f5d5dd; border-color: var(--pink-accent); }
+        .fingerprint-panel.success { border: 3px solid #4CAF50; background: #e8f5e9; transform: scale(1); }
+        .success-icon { position: absolute; font-size: 3rem; opacity: 0; transition: 0.5s; }
+        .fingerprint-panel.success .success-icon { opacity: 1; }
+        .fingerprint-panel.success .panel-text { opacity: 0; }
+
+        @media (max-width: 600px) {
+            .time-box { width: 70px; height: 85px; }
+            .time-box .number { font-size: 1.8rem; }
+            .time-box .label { font-size: 0.65rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- 1. GİRİŞ EKRANI -->
+    <div id="login-screen">
+        <div class="login-box">
+            <h2>Gizli Məkan 🤫</h2>
+            <p>Bura ancaq Aytac və Asif üçündür.</p>
+            <input type="password" id="passwordInput" placeholder="Şifrəni yaz...">
+            <br>
+            <button class="btn" onclick="checkPassword()">Daxil Ol</button>
+            <p id="loginError" style="color: red; margin-top: 10px; display: none;"></p>
+        </div>
+    </div>
+
+    <!-- 2. SUAL EKRANI (Qaçan düymə) -->
+    <div id="question-screen">
+        <h1>Məni sevirsən? 😝</h1>
+        <div style="display: flex; gap: 20px; justify-content: center; position: relative;">
+            <button class="btn" onclick="sayYes()">Hə</button>
+            <button class="btn btn-no" id="noBtn">Yox</button>
+        </div>
+    </div>
+
+    <!-- 3. KİÇİK MODAL -->
+    <div id="mini-modal">
+        <h2>MƏN DƏ SƏNİ SEVİRƏM GÜLÜMM &lt;3</h2>
+    </div>
+
+    <!-- 4. ŞƏKİL BAXMAQ ÜÇÜN MODAL -->
+    <div id="photo-modal">
+        <span class="close-modal" onclick="closePhotoModal()">&times;</span>
+        <img id="modal-img" src="" alt="Özəl Gün">
+        <p id="modal-caption"></p>
+    </div>
+
+    <!-- ƏSAS TƏTBİQ (TABS) -->
+    <div id="app-container">
+        
+        <!-- TAB 1: Ana Səhifə -->
+        <div id="tab-home" class="tab-content active">
+            <div class="card">
+                <h2>AYTACIM ÜÇÜN ❤️</h2>
+                
+                <div class="timer-container">
+                    <div class="time-box"><span class="number" id="years">00</span><span class="label">İl</span></div>
+                    <div class="time-box"><span class="number" id="months">00</span><span class="label">Ay</span></div>
+                    <div class="time-box"><span class="number" id="days">00</span><span class="label">Gün</span></div>
+                    <div class="time-box"><span class="number" id="hours">00</span><span class="label">Saat</span></div>
+                    <div class="time-box"><span class="number" id="minutes">00</span><span class="label">Dəqiqə</span></div>
+                    <div class="time-box">
+                        <div class="heart-icon">❤️</div>
+                        <span class="number" id="seconds">00</span><span class="label">Saniyə</span>
+                    </div>
+                </div>
+                <div class="start-date">07.07.2026</div>
+
+                <div class="reasons-teaser">
+                    <span>🤔 Aytacımı niyə sevirəm?</span>
+                    <button class="btn" onclick="toggleReasons()" id="reasonsBtn" style="padding: 8px 20px;">Bax</button>
+                </div>
+                <div class="reasons-content" id="reasonsContent">
+                    <ul class="reasons-list">
+                        <li>Gözlərin</li><li>Gülüşün</li><li>Xarakterin</li><li>Səmimiyyətin</li>
+                        <li>İnadkarlığın</li><li>Mehribanlığın</li><li>Ağıllı olmağın</li>
+                        <li>Sadəcə özün olmağın</li>
+                    </ul>
+                    <p style="text-align:center; margin-top:10px; color:var(--pink-accent); font-weight:bold;">bəli onu çox sevirəm... ❤️</p>
+                </div>
+
+                <div class="connection-section">
+                    <h3>💞 Bizim Sevgi Bağımız</h3>
+                    <div class="hearts-container">
+                        <div><div class="beating-heart">❤️</div><b>Asif</b></div>
+                        <div class="connection-line"><div class="pulse-dot"></div></div>
+                        <div><div class="beating-heart">❤️</div><b>Aytac</b></div>
+                    </div>
+                    <p style="font-weight:bold; font-size:1.2rem;">Bağlılıq: <span style="color:var(--pink-accent);">99.9%</span> ♾️</p>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2>Özəl Günlərimiz 🌟</h2>
+                <div id="specialDaysList">
+                    <!-- Özəl günlər bura düşəcək -->
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB 2: Albom -->
+        <div id="tab-album" class="tab-content">
+            <div class="card">
+                <h2>Xatirələrimiz 📸</h2>
+                <input type="text" id="uploaderName" placeholder="Adınız (Məs: Asif)">
+                <input type="file" id="photoInput" accept="image/*">
+                <input type="text" id="captionInput" placeholder="Şəkil üçün qısa şərh yaz...">
+                
+                <div class="checkbox-container">
+                    <input type="checkbox" id="isSpecialDay" onchange="toggleDateInput()">
+                    <label for="isSpecialDay">Bu özəl gündür?</label>
+                </div>
+                <input type="date" id="specialDateInput" style="display: none;">
+                
+                <button class="btn" onclick="uploadPhoto()" id="uploadBtn" style="width:100%; margin-top:10px;">Yüklə</button>
+            </div>
+            <div class="album-grid" id="albumContainer"></div>
+        </div>
+
+        <!-- TAB 3: Sözlər -->
+        <div id="tab-letters" class="tab-content">
+            <div class="card">
+                <h2>Ürək Sözləri 💌</h2>
+                <input type="text" id="authorName" placeholder="Adınız (Məs: Aytac)">
+                <textarea id="letterInput" rows="4" placeholder="İçindən gələnləri yaz..."></textarea>
+                <button class="btn" onclick="saveLetter()" style="width:100%;">Məktubu Göndər</button>
+            </div>
+            <div id="lettersContainer"></div>
+        </div>
+
+        <!-- TAB 4: Əyləncə -->
+        <div id="tab-fun" class="tab-content">
+            
+            <div class="card">
+                <h2>Gözəllik Yoxlanışı ✨</h2>
+                <button class="btn" onclick="startBeautyCheck()">Yoxla</button>
+                <div id="beautyContainer" class="hidden-container">
+                    <p id="beautyLoadingText"></p>
+                    <h3 id="beautyResult" style="display:none; color:var(--pink-accent);">Sən dünyanın ən gözəl qızısan! 😍💖</h3>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2>Evlilik Təsdiqi 💍</h2>
+                <div class="fingerprint-panel" id="fingerprintPanel">
+                    <span class="panel-text" style="font-weight:bold; text-align:center;">Barmağını<br>basılı tut</span>
+                    <div class="success-icon">✅</div>
+                </div>
+                <p id="marriageSuccess" style="display:none; color:var(--pink-accent); font-weight:bold; font-size:1.2rem;">Evlilik təsdiqləndi! 😝</p>
+            </div>
+
+            <div class="card">
+                <h2>Əsəbi olanda partlat 🎈</h2>
+                <div class="bubble-grid" id="bubbleContainer"></div>
+                <button class="btn" style="margin-top:15px; padding:8px 20px;" onclick="createBubbles()">Yenilə</button>
+            </div>
+
+            <div class="card">
+                <h2>Fikrini Dağıt: Cütünü Tap 🧩</h2>
+                <div class="memory-game" id="memoryGame"></div>
+                <button class="btn" style="margin-top:10px; padding:8px 20px;" onclick="initMemoryGame()">Yenidən Başla</button>
+            </div>
+
+            <div class="card">
+                <h2>Ürəyindən Keçənləri Çək 🎨</h2>
+                <canvas id="drawingCanvas" width="400" height="400"></canvas>
+                <div style="margin-top:10px;">
+                    <div class="color-btn" style="background:#7a283b;" onclick="changeColor('#7a283b')"></div>
+                    <div class="color-btn" style="background:#ff6b8b;" onclick="changeColor('#ff6b8b')"></div>
+                    <div class="color-btn" style="background:#000000;" onclick="changeColor('#000000')"></div>
+                    <button class="btn" style="padding:5px 15px; font-size:0.9rem;" onclick="clearCanvas()">Təmizlə</button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- ALT MENYU -->
+    <div class="bottom-nav" id="bottomNav" style="display: none;">
+        <div class="nav-item active" onclick="switchTab('home', this)">Ana Səhifə</div>
+        <div class="nav-item" onclick="switchTab('album', this)">Albom</div>
+        <div class="nav-item" onclick="switchTab('letters', this)">Sözlər</div>
+        <div class="nav-item" onclick="switchTab('fun', this)">Əyləncə</div>
+    </div>
+
+    <script>
+        let allPhotos = []; // Bütün şəkilləri yadda saxlamaq üçün
+
+        // --- 1. GİRİŞ VƏ SUAL SİSTEMİ ---
+        async function checkPassword() {
+            const pass = document.getElementById('passwordInput').value;
+            const errorEl = document.getElementById('loginError');
+            try {
+                const res = await fetch('/api/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ password: pass })
+                });
+                const data = await res.json();
+                if (data.success) {
+                    document.getElementById('login-screen').style.display = 'none';
+                    document.getElementById('question-screen').style.display = 'flex';
+                    sessionStorage.setItem('isLogged', 'true');
+                    loadData();
+                } else {
+                    errorEl.innerText = data.message;
+                    errorEl.style.display = 'block';
+                }
+            } catch (err) {
+                errorEl.innerText = "Server xətası!";
+                errorEl.style.display = 'block';
+            }
+        }
+
+        if(sessionStorage.getItem('isLogged') === 'true') {
+            document.getElementById('login-screen').style.display = 'none';
+            document.getElementById('app-container').style.display = 'block';
+            document.getElementById('bottomNav').style.display = 'flex';
+            loadData();
+            initGames();
+        }
+
+        // Qaçan Yox Düyməsi
+        const noBtn = document.getElementById('noBtn');
+        const moveButton = () => {
+            const x = Math.floor(Math.random() * 150) - 75;
+            const y = Math.floor(Math.random() * 150) - 75;
+            noBtn.style.transform = `translate(${x}px, ${y}px)`;
+        };
+        noBtn.addEventListener('mouseover', moveButton);
+        noBtn.addEventListener('touchstart', (e) => { e.preventDefault(); moveButton(); });
+
+        function sayYes() {
+            document.getElementById('question-screen').style.display = 'none';
+            const miniModal = document.getElementById('mini-modal');
+            miniModal.style.transform = 'translate(-50%, -50%) scale(1)';
+            setTimeout(() => {
+                miniModal.style.transform = 'translate(-50%, -50%) scale(0)';
+                setTimeout(() => {
+                    document.getElementById('app-container').style.display = 'block';
+                    document.getElementById('bottomNav').style.display = 'flex';
+                    initGames();
+                    confetti();
+                }, 400);
+            }, 2000);
+        }
+
+        // --- 2. MENYU VƏ TAYMER ---
+        function switchTab(tabId, element) {
+            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.nav-item').forEach(nav => nav.classList.remove('active'));
+            document.getElementById('tab-' + tabId).classList.add('active');
+            element.classList.add('active');
+        }
+
+        const startDate = new Date(2026, 6, 7, 0, 0, 0); // 07.07.2026 (Ay indeksi 6-dır)
+        setInterval(() => {
+            const now = new Date();
+            if (now < startDate) return;
+            let years = now.getFullYear() - startDate.getFullYear();
+            let months = now.getMonth() - startDate.getMonth();
+            let days = now.getDate() - startDate.getDate();
+            if (days < 0) { months--; days += new Date(now.getFullYear(), now.getMonth(), 0).getDate(); }
+            if (months < 0) { years--; months += 12; }
+            let hours = now.getHours() - startDate.getHours();
+            if (hours < 0) { days--; hours += 24; }
+            let minutes = now.getMinutes() - startDate.getMinutes();
+            if (minutes < 0) { hours--; minutes += 60; }
+            let seconds = now.getSeconds() - startDate.getSeconds();
+            if (seconds < 0) { minutes--; seconds += 60; }
+
+            const format = (n) => n < 10 ? `0${n}` : n;
+            document.getElementById('years').innerText = format(years);
+            document.getElementById('months').innerText = format(months);
+            document.getElementById('days').innerText = format(days);
+            document.getElementById('hours').innerText = format(hours);
+            document.getElementById('minutes').innerText = format(minutes);
+            document.getElementById('seconds').innerText = format(seconds);
+        }, 1000);
+
+        function toggleReasons() {
+            const content = document.getElementById('reasonsContent');
+            const btn = document.getElementById('reasonsBtn');
+            if (content.classList.contains('open')) {
+                content.classList.remove('open'); btn.innerText = 'Bax';
+            } else {
+                content.classList.add('open'); btn.innerText = 'Bağla';
+            }
+        }
+
+        // --- 3. BACKEND ƏMƏLİYYATLARI (Şəkil, Özəl Gün, Məktub) ---
+        function toggleDateInput() {
+            const isChecked = document.getElementById('isSpecialDay').checked;
+            document.getElementById('specialDateInput').style.display = isChecked ? 'block' : 'none';
+        }
+
+        async function uploadPhoto() {
+            const fileInput = document.getElementById('photoInput');
+            const caption = document.getElementById('captionInput').value;
+            const uploaderName = document.getElementById('uploaderName').value || 'Gizli';
+            const isSpecialDay = document.getElementById('isSpecialDay').checked;
+            const specialDate = document.getElementById('specialDateInput').value;
+            const btn = document.getElementById('uploadBtn');
+
+            if (!fileInput.files[0]) return alert("Şəkil seçin!");
+            if (isSpecialDay && !specialDate) return alert("Özəl günün tarixini seçin!");
+
+            btn.innerText = "Yüklənir..."; btn.disabled = true;
+            const formData = new FormData();
+            formData.append('image', fileInput.files[0]);
+            formData.append('caption', caption);
+            formData.append('uploader_name', uploaderName);
+            formData.append('is_special_day', isSpecialDay);
+            formData.append('special_date', specialDate);
+
+            try {
+                const res = await fetch('/api/upload', { method: 'POST', body: formData });
+                const data = await res.json();
+                if (data.success) {
+                    fileInput.value = ''; document.getElementById('captionInput').value = '';
+                    document.getElementById('isSpecialDay').checked = false; toggleDateInput();
+                    loadData(); confetti();
+                }
+            } catch (err) { alert("Xəta baş verdi!"); }
+            btn.innerText = "Yüklə"; btn.disabled = false;
+        }
+
+        async function loadData() {
+            // Şəkilləri yüklə
+            const resPhotos = await fetch('/api/photos');
+            allPhotos = await resPhotos.json();
+            
+            const albumContainer = document.getElementById('albumContainer');
+            const specialDaysList = document.getElementById('specialDaysList');
+            albumContainer.innerHTML = ''; specialDaysList.innerHTML = '';
+
+            let hasSpecialDay = false;
+
+            allPhotos.forEach(photo => {
+                // Alboma əlavə et
+                albumContainer.innerHTML += `
+                    <div class="photo-card">
+                        <div class="uploader-badge">${photo.uploader_name || '❤️'}</div>
+                        <img src="${photo.image_url}" alt="Xatirə">
+                        <p style="margin-top:5px; font-size:0.9rem;">${photo.caption || ''}</p>
+                    </div>
+                `;
+
+                // Özəl günlərə əlavə et
+                if (photo.is_special_day) {
+                    hasSpecialDay = true;
+                    const dateStr = new Date(photo.special_date).toLocaleDateString('az-AZ');
+                    specialDaysList.innerHTML += `
+                        <div class="special-day-item">
+                            <span>${dateStr} - ${photo.caption || 'Özəl Gün'}</span>
+                            <button class="btn-small" onclick="openPhotoModal('${photo.image_url}', '${photo.caption}')">Bax</button>
+                        </div>
+                    `;
+                }
+            });
+
+            if(!hasSpecialDay) specialDaysList.innerHTML = "<p style='color:gray;'>Hələ özəl gün əlavə edilməyib.</p>";
+
+            // Məktubları yüklə
+            const resLetters = await fetch('/api/letters');
+            const letters = await resLetters.json();
+            const lettersContainer = document.getElementById('lettersContainer');
+            lettersContainer.innerHTML = '';
+            letters.forEach(letter => {
+                const date = new Date(letter.created_at).toLocaleDateString('az-AZ');
+                lettersContainer.innerHTML += `
+                    <div class="letter-card">
+                        <div class="letter-header"><span>Yazan: ${letter.author_name || 'Gizli'}</span><span>${date}</span></div>
+                        <div>${letter.message}</div>
+                    </div>
+                `;
+            });
+        }
+
+        async function saveLetter() {
+            const msg = document.getElementById('letterInput').value;
+            const author = document.getElementById('authorName').value || 'Gizli';
+            if (!msg) return;
+            await fetch('/api/letters', {
+                method: 'POST', headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ message: msg, author_name: author })
+            });
+            document.getElementById('letterInput').value = '';
+            loadData(); confetti();
+        }
+
+        // Modal funksiyaları
+        function openPhotoModal(url, caption) {
+            document.getElementById('modal-img').src = url;
+            document.getElementById('modal-caption').innerText = caption !== 'undefined' ? caption : '';
+            document.getElementById('photo-modal').style.display = 'flex';
+        }
+        function closePhotoModal() { document.getElementById('photo-modal').style.display = 'none'; }
+
+        // --- 4. ƏYLƏNCƏ FUNKSİYALARI ---
+        function initGames() {
+            createBubbles();
+            initMemoryGame();
+            initCanvas();
+        }
+
+        // Gözəllik Yoxlanışı
+        function startBeautyCheck() {
+            const container = document.getElementById('beautyContainer');
+            const loadingText = document.getElementById('beautyLoadingText');
+            const resultDiv = document.getElementById('beautyResult');
+            container.classList.add('show'); resultDiv.style.display = 'none'; loadingText.style.display = 'block';
+            const steps = ["Analiz edilir... ⏳", "Üz cizgilərinə baxılır... 🧐", "Gülüşün şirinliyi ölçülür... 😊"];
+            let i = 0; loadingText.innerText = steps[0];
+            const int = setInterval(() => {
+                i++;
+                if (i < steps.length) loadingText.innerText = steps[i];
+                else {
+                    clearInterval(int); loadingText.style.display = 'none'; resultDiv.style.display = 'block'; confetti();
+                }
+            }, 1000);
+        }
+
+        // Barmaq İzi
+        const panel = document.getElementById('fingerprintPanel');
+        let holdTimer;
+        const startHold = (e) => { e.preventDefault(); panel.classList.add('holding'); holdTimer = setTimeout(() => { panel.classList.remove('holding'); panel.classList.add('success'); document.getElementById('marriageSuccess').style.display = 'block'; confetti(); }, 2000); };
+        const endHold = () => { panel.classList.remove('holding'); clearTimeout(holdTimer); };
+        panel.addEventListener('mousedown', startHold); panel.addEventListener('mouseup', endHold); panel.addEventListener('mouseleave', endHold);
+        panel.addEventListener('touchstart', startHold, {passive: false}); panel.addEventListener('touchend', endHold);
+
+        // Qabarcıqlar
+        function createBubbles() {
+            const container = document.getElementById('bubbleContainer'); container.innerHTML = '';
+            for (let i = 0; i < 10; i++) {
+                let b = document.createElement('div'); b.className = 'bubble'; b.innerHTML = '🎈';
+                b.onclick = function() { if (!this.classList.contains('popped')) { this.classList.add('popped'); this.innerHTML = '💥'; if(navigator.vibrate) navigator.vibrate(40); } };
+                container.appendChild(b);
+            }
+        }
+
+        // Cütünü Tap
+        const emojis = ['🐱', '🐱', '💖', '💖', '🌸', '🌸', '🍓', '🍓'];
+        let hasFlipped = false, lockBoard = false, firstCard, secondCard;
+        function initMemoryGame() {
+            const board = document.getElementById('memoryGame'); board.innerHTML = '';
+            hasFlipped = false; lockBoard = false; firstCard = null; secondCard = null;
+            emojis.sort(() => 0.5 - Math.random()).forEach(e => {
+                const card = document.createElement('div'); card.classList.add('memory-card'); card.dataset.emoji = e;
+                card.innerHTML = `<div class="front">${e}</div><div class="back">?</div>`;
+                card.addEventListener('click', function() {
+                    if (lockBoard || this === firstCard) return;
+                    this.classList.add('flip');
+                    if (!hasFlipped) { hasFlipped = true; firstCard = this; return; }
+                    secondCard = this;
+                    if (firstCard.dataset.emoji === secondCard.dataset.emoji) {
+                        firstCard.removeEventListener('click', arguments.callee); secondCard.removeEventListener('click', arguments.callee);
+                        [hasFlipped, lockBoard, firstCard, secondCard] = [false, false, null, null];
+                    } else {
+                        lockBoard = true; setTimeout(() => { firstCard.classList.remove('flip'); secondCard.classList.remove('flip'); [hasFlipped, lockBoard, firstCard, secondCard] = [false, false, null, null]; }, 1000);
+                    }
+                });
+                board.appendChild(card);
+            });
+        }
+
+        // Rəsm (Canvas)
+        const canvas = document.getElementById('drawingCanvas');
+        const ctx = canvas.getContext('2d');
+        let isDrawing = false, brushColor = '#7a283b';
+        function initCanvas() { ctx.fillStyle = '#ffffff'; ctx.fillRect(0, 0, canvas.width, canvas.height); ctx.lineCap = 'round'; ctx.lineWidth = 5; }
+        function getPos(e) { const rect = canvas.getBoundingClientRect(); const clientX = e.touches ? e.touches[0].clientX : e.clientX; const clientY = e.touches ? e.touches[0].clientY : e.clientY; return { x: (clientX - rect.left) * (canvas.width / rect.width), y: (clientY - rect.top) * (canvas.height / rect.height) }; }
+        const startDraw = (e) => { isDrawing = true; draw(e); };
+        const endDraw = () => { isDrawing = false; ctx.beginPath(); };
+        const draw = (e) => { if (!isDrawing) return; e.preventDefault(); const pos = getPos(e); ctx.strokeStyle = brushColor; ctx.lineTo(pos.x, pos.y); ctx.stroke(); ctx.beginPath(); ctx.moveTo(pos.x, pos.y); };
+        canvas.addEventListener('mousedown', startDraw); canvas.addEventListener('mouseup', endDraw); canvas.addEventListener('mousemove', draw); canvas.addEventListener('mouseleave', endDraw);
+        canvas.addEventListener('touchstart', startDraw, {passive: false}); canvas.addEventListener('touchend', endDraw); canvas.addEventListener('touchmove', draw, {passive: false});
+        function changeColor(c) { brushColor = c; }
+        function clearCanvas() { ctx.fillStyle = '#ffffff'; ctx.fillRect(0, 0, canvas.width, canvas.height); }
+
+    </script>
+</body>
+</html>
