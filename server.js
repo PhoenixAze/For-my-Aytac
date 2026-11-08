@@ -9,15 +9,12 @@ const port = process.env.PORT || 3000;
 
 app.use(cors());
 app.use(express.json());
-app.use(express.static('public')); // Frontend faylları public qovluğunda olacaq
+app.use(express.static('public'));
 
-// Supabase bağlantısı
 const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_KEY);
-
-// Şəkil yükləmək üçün multer ayarı (yaddaşda saxlayıb supabase-ə atacağıq)
 const upload = multer({ storage: multer.memoryStorage() });
 
-// 1. Şifrə Yoxlanışı API
+// 1. Şifrə Yoxlanışı
 app.post('/api/login', (req, res) => {
     const { password } = req.body;
     if (password === process.env.SITE_PASSWORD) {
@@ -27,53 +24,55 @@ app.post('/api/login', (req, res) => {
     }
 });
 
-// 2. Şəkil Yükləmə API
+// 2. Şəkil və Özəl Gün Yükləmə
 app.post('/api/upload', upload.single('image'), async (req, res) => {
     try {
         const file = req.file;
-        const caption = req.body.caption;
+        const { caption, uploader_name, is_special_day, special_date } = req.body;
         const fileName = `${Date.now()}-${file.originalname}`;
 
-        // Supabase Storage-ə yükləmə
         const { data: storageData, error: storageError } = await supabase.storage
             .from('album')
             .upload(fileName, file.buffer, { contentType: file.mimetype });
 
         if (storageError) throw storageError;
 
-        // Şəklin public URL-ni almaq
         const { data: publicUrlData } = supabase.storage.from('album').getPublicUrl(fileName);
         const imageUrl = publicUrlData.publicUrl;
 
-        // Verilənlər bazasına (Table) yazmaq
         const { data: dbData, error: dbError } = await supabase
             .from('photos')
-            .insert([{ image_url: imageUrl, caption: caption }]);
+            .insert([{ 
+                image_url: imageUrl, 
+                caption: caption,
+                uploader_name: uploader_name,
+                is_special_day: is_special_day === 'true',
+                special_date: special_date
+            }]);
 
         if (dbError) throw dbError;
-
-        res.json({ success: true, imageUrl, caption });
+        res.json({ success: true });
     } catch (error) {
         res.status(500).json({ success: false, error: error.message });
     }
 });
 
-// 3. Şəkilləri Gətirmə API
+// 3. Şəkilləri Gətirmə
 app.get('/api/photos', async (req, res) => {
     const { data, error } = await supabase.from('photos').select('*').order('created_at', { ascending: false });
     if (error) return res.status(500).json({ error: error.message });
     res.json(data);
 });
 
-// 4. Məktub Yazma API
+// 4. Məktub Yazma
 app.post('/api/letters', async (req, res) => {
-    const { message } = req.body;
-    const { data, error } = await supabase.from('letters').insert([{ message }]);
+    const { message, author_name } = req.body;
+    const { data, error } = await supabase.from('letters').insert([{ message, author_name }]);
     if (error) return res.status(500).json({ error: error.message });
     res.json({ success: true });
 });
 
-// 5. Məktubları Gətirmə API
+// 5. Məktubları Gətirmə
 app.get('/api/letters', async (req, res) => {
     const { data, error } = await supabase.from('letters').select('*').order('created_at', { ascending: false });
     if (error) return res.status(500).json({ error: error.message });
